@@ -1,0 +1,24 @@
+{
+  "name": "uno-game",
+  "version": "0.0.0",
+  "description": "Uno game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/newini/uno-game-js.git"
+  },
+  "keywords": [
+    "uno",
+    "game",
+    "js"
+  ],
+  "author": "Eunchong Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/newini/uno-game-js/issues"
+  },
+  "homepage": "https://github.com/newini/uno-game-js#readme"
+}
