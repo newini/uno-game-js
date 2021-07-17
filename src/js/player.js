@@ -1,16 +1,14 @@
 import Card from './card.js';
 
 export default class Player {
-  constructor(cards) {
-    this._n = cards.length;
+  constructor(name) {
+    this._name = name;
     this._cards = [];
-    cards.forEach( (card) => {
-      this._cards.push( new Card( card['num'], card['color'] ) );
-    });
+  }
+  addCard(card) {
+    this._cards.push(card);
   }
   printCards() {
-    this._cards.forEach( (card) => {
-      console.log(card.num)
-    });
+    console.log(this._cards);
   }
 }
