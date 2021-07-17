@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
 const room = new Room();
 room.addPlayer('newini');
 room.printPlayers();
-room.initCards();
+room.initDeck();
 room.shuffleDeck();
+room.startGame();
 
 console.log('Uno End')

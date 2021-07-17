@@ -7,6 +7,7 @@ export default class Room {
     this._n_players = 0;
     this._players = [];
     this._cards = [];
+    this._turn_who = 0;
     this.ALL_COLORS = ['red', 'yellow', 'green', 'blue'];
   }
   addPlayer(player_name) {
@@ -16,7 +17,7 @@ export default class Room {
   printPlayers() {
     console.log(this._players);
   }
-  initCards() {
+  initDeck() {
     this.ALL_COLORS.forEach( (color) => {
       for (let num=0; num<=12; num++) {
         const card = new Card(num, color);
@@ -35,16 +36,30 @@ export default class Room {
         this._cards.push( card );
       }
     }
-    console.log( this._cards );
   }
   shuffleDeck() {
     this._players.forEach( (player) => {
       for (let i=0; i<7; i++) {
-        let j = Math.floor( Math.random() * this._cards.length );
-        const card = this._cards.splice(j, 1);
-        player.addCard(card);
+        player.addCard( this.draw() );
       }
       player.printCards();
     });
+  }
+  draw() {
+    const card_i = Math.floor( Math.random() * this._cards.length );
+    return this._cards.splice(card_i, 1);
+  }
+  startGame() {
+    let count = 0;
+    while (true) {
+      const card = this.playerTurn();
+      if (this._players[0].isEmpty()) {
+        console.log('game end')
+        break
+      }
+    }
+  }
+  async playerTurn() {
+    return this._players[0].playCard(0);
   }
 }

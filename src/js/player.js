@@ -11,4 +11,11 @@ export default class Player {
   printCards() {
     console.log(this._cards);
   }
+  playCard(i) {
+    console.log(this._cards);
+    return this._cards.splice(i, 1);
+  }
+  isEmpty() {
+    return (this._cards.length === 0) ? true : false;
+  }
 }
