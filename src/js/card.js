@@ -1,7 +1,7 @@
 export default class Card {
-  constructor(num, color) {
+  constructor(num, color_n) {
     this._num = num;
-    this._color = color;
+    this._color_n = color_n;
   }
 
   get num() {
@@ -10,15 +10,15 @@ export default class Card {
   set num(num) {
     this._num = num;
   }
-  get color() {
-    return this._color;
+  get color_n() {
+    return this._color_n;
   }
-  set color(color) {
-    this._color = color;
+  set color_n(color_n) {
+    this._color_n = color_n;
   }
 
   isMatch(card) {
-    if ( (this._num === card.num) || (this._color === card.color) ) {
+    if ( (this._num === card.num) || (this._color_n === card.color_n) ) {
       return true;
     } else {
       return false;
