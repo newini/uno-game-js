@@ -15,10 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const room = new Room();
-room.addPlayer('newini');
-room.printPlayers();
-room.initDeck();
-room.shuffleDeck();
-room.startGame();
+room.addHuman('newini');
+room.addBot();
+
+setTimeout( () => { room.startGame(); }, 1000);
+
+//room.startGame();
 
 console.log('Uno End')
