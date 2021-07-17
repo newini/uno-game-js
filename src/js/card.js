@@ -1,7 +1,7 @@
 export default class Card {
-  constructor() {
-    this._num = 0;
-    this._color = 'red';
+  constructor(num, color) {
+    this._num = num;
+    this._color = color;
   }
   get num() {
     return this._num;
