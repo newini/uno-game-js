@@ -1,38 +1,35 @@
 # UNO game written in JavaScript
+I used:
+- js
+- webpack and loaders: to pack to one file
+- [Wallpaper Access](https://wallpaperaccess.com/): Background image
+
 
 
 ## For developers
 
+
 ### Install webpack
 This repo is compiled with `webpack`. So, first install webpack by
 ```
-npm install webpack webpack-cli
+npm install webpack webpack-cli style-loader css-loader file-loader sass sass-loader --save-dev
 ```
-
-### Install style-loader and css-loader
-To handle css files, style-loader and css-loader are required.
-```
-npm install style-loader css-loader
-```
+- `webpack`, `webpack-cli`: webpack
+- `style-loader`: Creates `style` nodes from JS strings
+- `css-loader`: Translates CSS into CommonJS
+- `file-loader`: copy image files to dist
+- `sass`, `sass-loader`: Compiles Sass to CSS
+- `--save-dev`: write dependencies in `devDependencies` instead of `dependencies` in `package.json`
 
 ### Config webpack
-Open `webpack.config.js` and edit
-```
-module.exports = {
-  module: {
-    rules: [
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
-  },
-};
-```
-to use style-loader and css-loader for .css files.
+Edit `webpack.config.js` to use webpack loaders
 
 ### Use webpack
 ```
 npx webpack
+```
+or
+```
+npm run build
 ```
 This command will generate `dist/main.js`

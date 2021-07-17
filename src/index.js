@@ -1,9 +1,12 @@
 console.log('Uno Start')
 
-import './css/uno-game.css';
-import Card from './js/card.js';
-import Player from './js/player.js';
+/* Class */
 import Room from './js/room.js';
+/* SCSS */
+import './styles/uno-game.scss';
+/* Images */
+//import green_table from './images/green_table.jpg';
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const div = document.getElementById('uno-game');

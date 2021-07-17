@@ -4,6 +4,7 @@
   "description": "Uno game",
   "private": true,
   "scripts": {
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,8 +22,11 @@
     "url": "https://github.com/newini/uno-game-js/issues"
   },
   "homepage": "https://github.com/newini/uno-game-js#readme",
-  "dependencies": {
+  "devDependencies": {
     "css-loader": "^6.0.0",
+    "file-loader": "^6.2.0",
+    "sass": "^1.35.2",
+    "sass-loader": "^12.1.0",
     "style-loader": "^3.1.0",
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2"
