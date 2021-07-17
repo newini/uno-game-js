@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/newini/uno-game-js/issues"
   },
-  "homepage": "https://github.com/newini/uno-game-js#readme"
+  "homepage": "https://github.com/newini/uno-game-js#readme",
+  "dependencies": {
+    "css-loader": "^6.0.0",
+    "style-loader": "^3.1.0",
+    "webpack": "^5.45.1",
+    "webpack-cli": "^4.7.2"
+  }
 }
