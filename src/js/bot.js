@@ -11,9 +11,8 @@ export default class Bot extends Player {
       if ( top_card.isMatch(card) ) {
         this._cards.splice(i, 1)[0];
         return card;
-      } else {
-        return null;
       }
     }
+    return null;
   }
 }

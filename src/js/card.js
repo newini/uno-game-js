@@ -18,7 +18,9 @@ export default class Card {
   }
 
   isMatch(card) {
-    if ( (this._num === card.num) || (this._color_n === card.color_n) ) {
+    if ( (this._num <= 12 && this._num === card.num)
+      || (this._num >= 13)
+      || (this._color_n === card.color_n) ) {
       return true;
     } else {
       return false;

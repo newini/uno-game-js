@@ -36,10 +36,13 @@ export default class Room {
   initDeck() {
     for (let x=0; x<14; x++) {
       for (let y=0; y<8; y++) {
-        if ( (x === 0) && (y >= 4) ) {
+        if ( (x === 0) && (y >= 4) ) { // Skip blank card
           continue;
         }
-        const card = new Card(x, y);
+        if ( (x === 13) && (y >= 4) ) { // +4 cards
+          x = 14;
+        }
+        const card = new Card(x, y%4);
         this._cards.push(card);
       }
     }
