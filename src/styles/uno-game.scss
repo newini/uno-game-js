@@ -1,9 +1,18 @@
 .uno-game-div {
-  width: 800px;
-  height: 450px;
-  background-image: url('../images/green_table.jpg');
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 .uno-game-canv {
-  z-index:1;
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+
+  background-image: url('../images/green_table.jpg');
 }

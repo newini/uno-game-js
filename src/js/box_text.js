@@ -10,7 +10,7 @@ export default class BoxText {
     ctx.lineWidth = 4;
     ctx.fillStyle = "#abc";
     ctx.fillRect(x, y, w, h);
-    ctx.font = "30px Arial";
+    ctx.font = Math.floor(h/4)+"px Arial";
     ctx.textAlign="center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";

@@ -15,14 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const div = document.getElementById('uno-game');
   div.classList.add('uno-game-div');
 
+  const inner_w = window.innerWidth;
+  const inner_h = inner_w*9/16;
   // Add canvas
-  canvas.classList.add('uno-game-canv')
-  canvas.width = 800;
-  canvas.height = 450;
+  canvas.classList.add('uno-game-canv');
+  canvas.width = inner_w;
+  canvas.height = inner_h;
   div.appendChild( canvas );
 
-  // Add game start button
-  start_game_box_text = new BoxText(ctx, 300, 300, 200, 100, 'Start Game');
+  // Add game start buttono
+  const btn_width = inner_w/8;
+  start_game_box_text = new BoxText(ctx, inner_w*7/16, inner_h*3/4, inner_w/8, inner_w/8/1.6, 'Start Game');
 
 });
 
@@ -43,7 +46,7 @@ canvas.addEventListener("click", e => {
 
 const room = new Room('room1', ctx);
 
-/* Game start view */
+/* Game start */
 function startGame() {
   console.info('Game start');
 
