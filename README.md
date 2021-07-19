@@ -1,8 +1,21 @@
-# UNO game written in JavaScript
+# UNO game written in JavaScript for HTML
 I used:
-- js
-- webpack and loaders: to pack to one file
+- JavaScript
+- webpack and some loaders: to pack to one file
 - [Wallpaper Access](https://wallpaperaccess.com/): Background image
+
+
+
+## Installation
+
+
+
+## How to use?
+Put these lines in the HTML body.
+```
+<div id='uno-game'></div>
+<script src='main.js'></script>
+```
 
 
 
