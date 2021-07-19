@@ -1,7 +1,11 @@
+
 export default class Card {
   constructor(num, color_n) {
     this._num = num;
     this._color_n = color_n;
+
+    this._card_w = 240;
+    this._card_h = 360;
   }
 
   get num() {
@@ -25,5 +29,26 @@ export default class Card {
     } else {
       return false;
     }
+  }
+
+  drawImageFront(ctx, img, x, y) {
+    this._x = x;
+    this._y = y;
+    this._w = ctx.canvas.width/16;
+    this._h = this._w * this._card_h / this._card_w;
+    ctx.drawImage(img, 1+this._card_w*this._num, 1+this._card_h*this._color_n, this._card_w, this._card_h,
+        x, y, this._w, this._h);
+  }
+
+  drawImageBack(ctx, img, x, y) {
+    this._x = x;
+    this._y = y;
+    this._w = ctx.canvas.width/16;
+    this._h = this._w * this._card_h / this._card_w;
+    ctx.drawImage(img, x, y, this._w, this._h);
+  }
+
+  eraseImage(ctx) {
+    ctx.clearRect(this._x, this._y, this._w, this._h);
   }
 }

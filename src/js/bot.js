@@ -1,8 +1,9 @@
 import Player from './player.js';
 
 export default class Bot extends Player {
-  constructor() {
-    super('bot');
+  constructor(name, id) {
+    super(name+id, id);
+    this._type = 'bot';
   }
 
   playCard(top_card) {

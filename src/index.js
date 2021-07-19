@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   div.classList.add('uno-game-div');
 
   const inner_w = window.innerWidth;
-  const inner_h = inner_w*9/16;
+  const inner_h = window.innerHeight;
   // Add canvas
   canvas.classList.add('uno-game-canv');
   canvas.width = inner_w;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add game start buttono
   const btn_width = inner_w/8;
-  start_game_box_text = new BoxText(ctx, inner_w*7/16, inner_h*3/4, inner_w/8, inner_w/8/1.6, 'Start Game');
+  start_game_box_text = new BoxText(ctx, inner_w*5/12, inner_h*3/4, inner_w/7, inner_w/8/1.6, 'Start Game');
 
 });
 
