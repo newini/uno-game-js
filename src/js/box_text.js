@@ -21,8 +21,4 @@ export default class BoxText {
     return ( (this._x <= point.x && point.x <= this._x + this._w)
         && (this._y <= point.y && point.y <= this._y + this._h) )
   }
-
-  clear() {
-    this._ctx.clearRect(this._x, this._y, this._w, this._h);
-  }
 }

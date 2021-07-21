@@ -1,5 +1,9 @@
-export default class Player {
+import BasicCanvas from './basic_canvas.js';
+
+export default class Player extends BasicCanvas {
   constructor(name, id) {
+    super();
+
     this._name = name;
     this._id = id;
     this._cards = [];

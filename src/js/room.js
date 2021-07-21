@@ -1,25 +1,21 @@
+import BasicCanvas from './basic_canvas.js';
 import Human from './human.js';
 import Bot from './bot.js';
 import Card from './card.js';
 /* Images */
-import cards_img from '../images/cards.svg';
-import card_back from '../images/card_back.svg';
 
-export default class Room {
-  constructor(name, ctx) {
+export default class Room extends BasicCanvas {
+  constructor(name) {
+    super();
+
     this._name = name;
     this._players = [];
     this._cards = [];
     this._used_cards = [];
-    this._ctx = ctx;
 
+    // Fill room name
     this._ctx.font = "32px Arial";
     this._ctx.fillText(name, 10, 10);
-
-    this._cards_img = new Image();
-    this._cards_img.src = cards_img;
-    this._card_back_img = new Image();
-    this._card_back_img.src = card_back;
   }
 
   addHuman(name) {
@@ -41,8 +37,7 @@ export default class Room {
         if ( (x === 13) && (y >= 4) ) { // +4 cards
           x = 14;
         }
-        const card = new Card(x, y%4);
-        this._cards.push(card);
+        this._cards.push( new Card(x, y%4) );
       }
     }
     console.log(this._cards);
@@ -67,17 +62,17 @@ export default class Room {
     const inner_h = window.innerHeight;
 
     // Drw top card
-    this._top_card.drawImageFront(this._ctx, this._cards_img, inner_w/2, inner_h/2);
+    this._top_card.drawImageFront(inner_w/2, inner_h/2);
 
     // Draw players card
     this._players.forEach( (player) => {
       for (let i=0; i<player.cards.length; i++) {
         const card = player.cards[i];
-        card.eraseImage(this._ctx);
+        card.clear();
         if (player.type == 'bot') {
-          card.drawImageBack(this._ctx, this._card_back_img, inner_w*(i+1)/16, inner_h*player.id/5);
+          card.drawImageBack(inner_w*(i+1)/16, inner_h*player.id/5);
         } else {
-          card.drawImageFront(this._ctx, this._cards_img, inner_w*(i+1)/16, inner_h*4/5);
+          card.drawImageFront(inner_w*(i+1)/16, inner_h*4/5);
         }
       }
     });
@@ -100,7 +95,7 @@ export default class Room {
       const card = await( player.playCard(this._top_card) );
       if (card) {
         console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
-        card.eraseImage(this._ctx);
+        card.clear();
         this._used_cards.push(this._top_card);
         this._top_card = card;
       } else {

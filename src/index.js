@@ -1,54 +1,58 @@
 /* Class */
+import BasicCanvas from './js/basic_canvas.js';
 import Room from './js/room.js';
 import BoxText from './js/box_text.js';
 /* SCSS */
 import './styles/uno-game.scss';
 
-const canvas = document.createElement("CANVAS");
-const ctx = canvas.getContext('2d');
-let start_game_box_text;
+// Global variables
+global.canvas_count = 0; // increment number to avoid the same canvas id
 
+// uno-game-div must be found
+global.uno_game_div;
+global.uno_game_w = window.innerWidth;
+global.uno_game_h = window.innerHeight;
 
 /* Main view */
 document.addEventListener('DOMContentLoaded', () => {
-  // Add div class
-  const div = document.getElementById('uno-game');
-  div.classList.add('uno-game-div');
+  // Get uno-game-div
+  global.uno_game_div = document.getElementById('uno-game');
+  global.uno_game_div.classList.add('uno-game-div');
 
-  const inner_w = window.innerWidth;
-  const inner_h = window.innerHeight;
-  // Add canvas
-  canvas.classList.add('uno-game-canv');
-  canvas.width = inner_w;
-  canvas.height = inner_h;
-  div.appendChild( canvas );
+  // Create canvas
+  const basic_canvas = new BasicCanvas();
 
-  // Add game start buttono
-  const btn_width = inner_w/8;
-  start_game_box_text = new BoxText(ctx, inner_w*5/12, inner_h*3/4, inner_w/7, inner_w/8/1.6, 'Start Game');
+  // Set canvas
+  basic_canvas.canvas.classList.add('uno-game-canv-main');
+
+  // Add game start button with bitmap
+  const btn_width = global.uno_game_w/8;
+  const start_game_box_text = new BoxText(basic_canvas.ctx, global.uno_game_w*5/12, global.uno_game_h*3/4,
+      global.uno_game_w/7, global.uno_game_w/8/1.6, 'Start Game');
+
+  /* Canvas click */
+  basic_canvas.canvas.addEventListener("click", e => {
+    const rect = basic_canvas.canvas.getBoundingClientRect();
+    const point = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+
+    console.log(point);
+    if ( start_game_box_text.isClicked(point) ) {
+      basic_canvas.clear();
+      startGame();
+    }
+  });
 
 });
 
-/* Canvas click */
-canvas.addEventListener("click", e => {
-  const rect = canvas.getBoundingClientRect();
-  const point = {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-
-  console.log(point);
-  if ( start_game_box_text.isClicked(point) ) {
-    start_game_box_text.clear();
-    startGame();
-  }
-});
-
-const room = new Room('room1', ctx);
 
 /* Game start */
 function startGame() {
   console.info('Game start');
+
+  const room = new Room('room1');
 
   room.addHuman('newini');
   room.addBot();
