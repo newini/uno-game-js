@@ -19,37 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
   global.uno_game_div = document.getElementById('uno-game');
   global.uno_game_div.classList.add('uno-game-div');
 
-  // Create canvas
-  const basic_canvas = new BasicCanvas();
+  // Create background canv
+  const bkg = new BasicCanvas(0, 0, global.uno_game_w, global.uno_game_h);
+  bkg.canvas.classList.add('uno-game-canv-bkg');
 
-  // Set canvas
-  basic_canvas.canvas.classList.add('uno-game-canv-main');
-
-  // Add game start button with bitmap
-  const btn_width = global.uno_game_w/8;
-  const start_game_box_text = new BoxText(basic_canvas.ctx, global.uno_game_w*5/12, global.uno_game_h*3/4,
-      global.uno_game_w/7, global.uno_game_w/8/1.6, 'Start Game');
+  // Create room button
+  const create_room_box_text = new BoxText(global.uno_game_w*5/12, global.uno_game_h*3/4,
+      global.uno_game_w/6, global.uno_game_w/12, 'Create Game');
 
   /* Canvas click */
-  basic_canvas.canvas.addEventListener("click", e => {
-    const rect = basic_canvas.canvas.getBoundingClientRect();
-    const point = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-
-    console.log(point);
-    if ( start_game_box_text.isClicked(point) ) {
-      basic_canvas.clear();
-      startGame();
-    }
+  create_room_box_text.canvas.addEventListener("click", e => {
+    create_room_box_text.remove();
+    createRoom();
   });
-
 });
 
 
 /* Game start */
-function startGame() {
+async function createRoom() {
   console.info('Game start');
 
   const room = new Room('room1');
@@ -59,7 +46,12 @@ function startGame() {
   room.addBot();
   room.addBot();
 
-  room.startGame();
+  await( room.initCards() );
+
+  //setTimeout( ()=>{ room.dealCards(); }, 2000 );
+  await( room.dealCards() );
+
+  await( room.startGame() );
 }
 
 

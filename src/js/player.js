@@ -40,9 +40,29 @@ export default class Player extends BasicCanvas {
 
   addCard(card) {
     this._cards.push(card);
+    this.sortCards();
+    if (this.type === 'human') {
+      card.flip();
+    }
+  }
+
+  removeCard(card) {
+    this._cards.splice(this._cards.indexOf(card), 1);
   }
 
   isEmpty() {
     return (this._cards.length === 0) ? true : false;
   }
+
+  refreshCards() {
+    for (let i=0; i<this._cards.length; i++) {
+      this._cards[i].move(global.uno_game_w*(i+1)/16, global.uno_game_h*(5-this.id-1)/5);
+    }
+  }
+
+  sortCards() {
+    this._cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
+    this.refreshCards();
+  }
+
 }

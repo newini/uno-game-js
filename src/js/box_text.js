@@ -1,24 +1,18 @@
-export default class BoxText {
-  constructor(ctx, x, y, w, h, text) {
-    this._ctx = ctx;
-    this._x = x;
-    this._y = y;
-    this._w = w;
-    this._h = h;
+import BasicCanvas from './basic_canvas.js';
+
+export default class BoxText extends BasicCanvas {
+  constructor(x, y, w, h, text) {
+    super(x, y, w, h);
+
     this._text = text;
 
-    ctx.lineWidth = 4;
-    ctx.fillStyle = "#abc";
-    ctx.fillRect(x, y, w, h);
-    ctx.font = Math.floor(h/3)+"px Arial";
-    ctx.textAlign="center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
-    ctx.fillText(text, x+w/2, y+h/2);
-  }
-
-  isClicked(point) {
-    return ( (this._x <= point.x && point.x <= this._x + this._w)
-        && (this._y <= point.y && point.y <= this._y + this._h) )
+    this._ctx.lineWidth = 4;
+    this._ctx.fillStyle = "#abc";
+    this._ctx.fillRect(0, 0, w, h);
+    this._ctx.font = Math.floor(h/3)+"px Arial";
+    this._ctx.textAlign="center";
+    this._ctx.textBaseline = "middle";
+    this._ctx.fillStyle = "#000000";
+    this._ctx.fillText(text, w/2, h/2);
   }
 }

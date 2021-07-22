@@ -6,7 +6,7 @@ import Card from './card.js';
 
 export default class Room extends BasicCanvas {
   constructor(name) {
-    super();
+    super(0, 0, global.uno_game_w, global.uno_game_h/10);
 
     this._name = name;
     this._players = [];
@@ -14,8 +14,8 @@ export default class Room extends BasicCanvas {
     this._used_cards = [];
 
     // Fill room name
-    this._ctx.font = "32px Arial";
-    this._ctx.fillText(name, 10, 10);
+    this._ctx.font = Math.floor(this._h/3) + "px Arial";
+    this._ctx.fillText(name, 10, 50);
   }
 
   addHuman(name) {
@@ -28,95 +28,129 @@ export default class Room extends BasicCanvas {
     console.log(this._players);
   }
 
-  initDeck() {
-    for (let x=0; x<14; x++) {
-      for (let y=0; y<8; y++) {
-        if ( (x === 0) && (y >= 4) ) { // Skip blank card
+  initCards() {
+    console.log('Init')
+    const index_arr = [...Array(108).keys()];
+    let cnt = 0;
+    for (let num=0; num<14; num++) {
+      for (let color_n=0; color_n<8; color_n++) {
+        if ( (num === 0) && (color_n >= 4) ) { // Skip blank card
           continue;
         }
-        if ( (x === 13) && (y >= 4) ) { // +4 cards
-          x = 14;
+        if ( (num === 13) && (color_n >= 4) ) { // +4 cards
+          num = 14;
         }
-        this._cards.push( new Card(x, y%4) );
+        const card_index = index_arr.splice(Math.floor( Math.random() * index_arr.length), 1)[0];
+        this._cards[ card_index ] = new Card(global.uno_game_w*6/16+card_index, global.uno_game_h/2, num, color_n%4);
+        cnt++;
       }
+    }
+    for (let i=0; i<this._cards.length; i++) {
+      this._cards[i].refresh();
     }
     console.log(this._cards);
   }
 
-  shuffleDeck() {
+  dealCards() {
+    console.log('Deal cards')
     this._players.forEach( (player) => {
       for (let i=0; i<7; i++) {
-        player.addCard( this.draw() );
+        player.addCard( this._cards.pop() );
       }
     });
     console.log(this._players);
   }
-  draw() {
-    /* Draw randomly */
-    const card_i = Math.floor( Math.random() * this._cards.length );
-    return this._cards.splice(card_i, 1)[0];
+
+  async startGame() {
+    console.log('Game start');
+
+    this._current_player = 0;
+    this._turn_count = 0;
+
+    this._top_card = this._cards.pop();
+    this._top_card.flip();
+    this._top_card.move(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
+    //this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
+
+    this.humanTurn(this._players[this._current_player]);
+
+    //  if (player.isEmpty()) {
+    //    console.log('player: ' + player.name + ' has no card left. Game end');
+    //    break
+    //  }
   }
 
-  updateView() {
-    const inner_w = window.innerWidth;
-    const inner_h = window.innerHeight;
+  async botPlay(player) {
+    console.log('Turn count: ' + this._turn_count + ', current player: ' + player.name);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Drw top card
-    this._top_card.drawImageFront(inner_w/2, inner_h/2);
+    const card = player.playCard(this._top_card);
+    if (card) {
+      console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
+      this.changeTopCard(card);
+    } else {
+      const card = this._cards.pop();
+      console.log('player: ' + player.name + ' drawed card num: ' + card.num + ', color: ' + card.color_n);
+      player.addCard(card);
+    }
 
-    // Draw players card
-    this._players.forEach( (player) => {
-      for (let i=0; i<player.cards.length; i++) {
-        const card = player.cards[i];
-        card.clear();
-        if (player.type == 'bot') {
-          card.drawImageBack(inner_w*(i+1)/16, inner_h*player.id/5);
-        } else {
-          card.drawImageFront(inner_w*(i+1)/16, inner_h*4/5);
-        }
+    player.refreshCards();
+
+    this._turn_count++;
+    const next_player = this.getNextPlayer();
+    if (next_player.type === 'human') {
+      this.humanTurn(next_player);
+    } else {
+      this.botPlay(next_player);
+    }
+  }
+
+  humanTurn(player) {
+    player.cards.forEach( (card) => {
+      if (!card.event_is_set) {
+        card.canvas.addEventListener('click', ()=>{
+          this.humanPlay(player, card);
+          player.removeCard(card);
+        });
+        card.event_is_set = true;
       }
     });
   }
 
-  async startGame() {
-    await( this.initDeck() );
-    await( this.shuffleDeck() );
+  async humanPlay(player, card) {
+    console.log('Turn count: ' + this._turn_count + ', current player: ' + player.name);
 
-    let count = 0;
-    let current_turn = 0;
-    this._top_card = this.draw();
+    this.changeTopCard(card);
 
-    console.log('Game start');
+    console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
+    player.refreshCards();
 
-    while (true) {
-      console.log('count: ' + count + ', current player: ' + this._players[current_turn].name);
-      const player = this._players[current_turn];
 
-      const card = await( player.playCard(this._top_card) );
-      if (card) {
-        console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
-        card.clear();
-        this._used_cards.push(this._top_card);
-        this._top_card = card;
+    this._turn_count++;
+    this.botPlay( this.getNextPlayer() );
+  }
+
+  getNextPlayer() {
+    if (this._reverse) {
+      if (this._current_player === 0) {
+        this._current_player = this._players.length-1;
       } else {
-        const card = this.draw();
-        console.log('player: ' + player.name + ' drawed card num: ' + card.num + ', color: ' + card.color_n);
-        player.addCard(card);
+        this._current_player--;
       }
-
-      this.updateView();
-      //await Promise.all([
-      //    timeout(1000)
-      //]);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      if (player.isEmpty()) {
-        console.log('player: ' + player.name + ' has no card left. Game end');
-        break
+    } else {
+      if (this._current_player === this._players.length-1) {
+        this._current_player = 0;
+      } else {
+        this._current_player++;
       }
-
-      current_turn = (current_turn >= this._players.length-1) ? 0 : ++current_turn;
-      count++;
     }
+    return this._players[this._current_player];
+  }
+
+  changeTopCard(card) {
+    this._used_cards.push(this._top_card);
+    this._top_card = card;
+    this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
+    this._top_card.refresh();
   }
 }

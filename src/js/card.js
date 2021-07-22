@@ -4,19 +4,32 @@ import cards_img from '../images/cards.svg';
 import card_back from '../images/card_back.svg';
 
 export default class Card extends BasicCanvas {
-  constructor(num, color_n) {
-    super();
-
-    this._num = num;
-    this._color_n = color_n;
+  constructor(x, y, num, color_n) {
+    super(x, y, global.uno_game_w/16, global.uno_game_w/16*360/240);
 
     this._c_w = 240;
     this._c_h = 360;
+
+    this._num = num;
+    this._color_n = color_n;
+    this._event_is_set = false;
 
     this._cards_img = new Image();
     this._cards_img.src = cards_img;
     this._card_back_img = new Image();
     this._card_back_img.src = card_back;
+
+    // Add border
+    this._canvas.style.border = '1px solid #000000';
+
+    // Add transition
+    this._canvas.style.transition = '0.5s';
+
+    // Fill
+    this._card_back_img.addEventListener('load', () => {
+      this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
+      this._is_front = false;
+    });
   }
 
   get num() {
@@ -32,6 +45,13 @@ export default class Card extends BasicCanvas {
     this._color_n = color_n;
   }
 
+  get event_is_set() {
+    return this._event_is_set;
+  }
+  set event_is_set(event_is_set) {
+    this._event_is_set = event_is_set;
+  }
+
   isMatch(card) {
     if ( (this._num <= 12 && this._num === card.num)
       || (this._num >= 13)
@@ -42,22 +62,33 @@ export default class Card extends BasicCanvas {
     }
   }
 
-  drawImageFront(x, y) {
+  flip() {
     this.clear();
-    this._x = x;
-    this._y = y;
-    this._w = global.uno_game_w/16;
-    this._h = this._w * this._c_h / this._c_w;
+    if (this._is_front) {
+      this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
+      this._is_front = false;
+    } else {
+      this._cards_img.addEventListener('load', () => {
+        this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
+            0, 0, this._w, this._h);
+        this._is_front = true;
+      });
+    }
+  }
+
+  drawImageFront(x, y) {
+    this._canvas.style.left = x + 'px';
+    this._canvas.style.top = y + 'px';
+    this.clear();
     this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
-        x, y, this._w, this._h);
+        0, 0, this._w, this._h);
   }
 
   drawImageBack(x, y) {
+    this._canvas.style.left = x + 'px';
+    this._canvas.style.top = y + 'px';
     this.clear();
-    this._x = x;
-    this._y = y;
-    this._w = global.uno_game_w/16;
-    this._h = this._w * this._c_h / this._c_w;
-    this._ctx.drawImage(this._card_back_img, x, y, this._w, this._h);
+    this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
   }
+
 }
