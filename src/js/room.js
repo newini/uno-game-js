@@ -31,7 +31,6 @@ export default class Room extends BasicCanvas {
   initCards() {
     console.log('Init')
     const index_arr = [...Array(108).keys()];
-    let cnt = 0;
     for (let num=0; num<14; num++) {
       for (let color_n=0; color_n<8; color_n++) {
         if ( (num === 0) && (color_n >= 4) ) { // Skip blank card
@@ -42,9 +41,9 @@ export default class Room extends BasicCanvas {
         }
         const card_index = index_arr.splice(Math.floor( Math.random() * index_arr.length), 1)[0];
         this._cards[ card_index ] = new Card(global.uno_game_w*6/16+card_index, global.uno_game_h/2, num, color_n%4);
-        cnt++;
       }
     }
+    // re-order z-index
     for (let i=0; i<this._cards.length; i++) {
       this._cards[i].refresh();
     }
@@ -115,20 +114,24 @@ export default class Room extends BasicCanvas {
     console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
 
     this._current_player.cards.forEach( (card) => {
-      card.canvas.addEventListener('click', () => {
-        console.log('played card num: ' + card.num + ', color: ' + card.color_n);
+      if (this._top_card.isMatch(card)) {
+        card.mouseEffect();
 
-        // Remove event listener
-        this._current_player.cards.forEach( (card) => {
-          card.resetEventListener();
+        card.canvas.addEventListener('click', () => {
+          console.log('played card num: ' + card.num + ', color: ' + card.color_n);
+
+          // Remove all cards' event listener
+          this._current_player.cards.forEach( (card) => {
+            card.resetEventListener();
+          });
+
+          this.changeTopCard(card);
+
+          this._current_player.removeCard(card);
+
+          this.processPlay();
         });
-
-        this.changeTopCard(card);
-
-        this._current_player.removeCard(card);
-
-        this.processPlay();
-      });
+      }
     });
 
   }

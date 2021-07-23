@@ -53,6 +53,8 @@ export default class BasicCanvas {
   }
 
   move(x, y) {
+    this._x = x;
+    this._y = y;
     this._canvas.style.left = x + 'px';
     this._canvas.style.top = y + 'px';
   }
@@ -65,4 +67,5 @@ export default class BasicCanvas {
   remove() {
     this._canvas.remove();
   }
+
 }

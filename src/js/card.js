@@ -69,18 +69,31 @@ export default class Card extends BasicCanvas {
   }
 
   drawImageFront(x, y) {
-    this._canvas.style.left = x + 'px';
-    this._canvas.style.top = y + 'px';
+    this.move(x, y);
     this.clear();
     this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
         0, 0, this._w, this._h);
   }
 
   drawImageBack(x, y) {
-    this._canvas.style.left = x + 'px';
-    this._canvas.style.top = y + 'px';
+    this.move(x, y);
     this.clear();
     this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
+  }
+
+  mouseEffect() {
+    this._canvas.addEventListener('mouseenter', () => {
+      console.log(this._canvas.style.top)
+      console.log(this._y)
+      console.log(this._h/4)
+      this._canvas.style.top = this._y - this._h/4 + 'px';
+      console.log(this._canvas.style.top)
+    });
+    this._canvas.addEventListener('mouseleave', () => {
+      console.log(this._canvas.style.top)
+      this._canvas.style.top = this._y + 'px';
+      console.log(this._canvas.style.top)
+    });
   }
 
 }
