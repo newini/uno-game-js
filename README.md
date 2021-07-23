@@ -6,6 +6,11 @@ I used:
 
 
 
+## Demonstration
+[DEMO on GitHub page](https://newini.github.io/uno-game-js/)
+
+
+
 ## Installation
 
 
