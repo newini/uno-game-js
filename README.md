@@ -6,16 +6,16 @@ I used:
 
 
 
-## Demonstration
+## 1. Demonstration
 [DEMO on GitHub page](https://newini.github.io/uno-game-js/)
 
 
 
-## Installation
+## 2. Installation
+TBA
 
 
-
-## How to use?
+## 3. How to use?
 Put these lines in the HTML body.
 ```
 <div id='uno-game'></div>
@@ -24,7 +24,7 @@ Put these lines in the HTML body.
 
 
 
-## For developers
+## 4. For developers
 
 
 ### Install webpack
