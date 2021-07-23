@@ -48,8 +48,9 @@ async function createRoom() {
 
   await( room.initCards() );
 
-  //setTimeout( ()=>{ room.dealCards(); }, 2000 );
   await( room.dealCards() );
+
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   await( room.startGame() );
 }

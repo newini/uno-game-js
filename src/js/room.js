@@ -64,15 +64,17 @@ export default class Room extends BasicCanvas {
   async startGame() {
     console.log('Game start');
 
-    this._current_player = 0;
     this._turn_count = 0;
 
-    this._top_card = this._cards.pop();
-    this._top_card.flip();
-    this._top_card.move(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
-    //this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
+    await( this.changeTopCard( this._cards.pop() ) );
 
-    this.humanTurn(this._players[this._current_player]);
+    await( this._current_player = this._players[0] );
+
+    if (this._current_player.type === 'bot') {
+      this.botPlay();
+    } else {
+      this.humanTurn();
+    }
 
     //  if (player.isEmpty()) {
     //    console.log('player: ' + player.name + ' has no card left. Game end');
@@ -80,77 +82,82 @@ export default class Room extends BasicCanvas {
     //  }
   }
 
-  async botPlay(player) {
-    console.log('Turn count: ' + this._turn_count + ', current player: ' + player.name);
+  async processPlay() {
+    await( this._current_player.refreshCards() );
+
+    this._turn_count++;
+    this._current_player = this.getNextPlayer();
+    if (this._current_player.type === 'human') {
+      this.humanTurn();
+    } else {
+      this.botPlay();
+    }
+  }
+
+  async botPlay() {
+    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const card = player.playCard(this._top_card);
+    const card = await( this._current_player.playCard(this._top_card) );
     if (card) {
-      console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
+      console.log('played card num: ' + card.num + ', color: ' + card.color_n);
       this.changeTopCard(card);
     } else {
       const card = this._cards.pop();
-      console.log('player: ' + player.name + ' drawed card num: ' + card.num + ', color: ' + card.color_n);
-      player.addCard(card);
+      console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
+      this._current_player.addCard(card);
     }
 
-    player.refreshCards();
-
-    this._turn_count++;
-    const next_player = this.getNextPlayer();
-    if (next_player.type === 'human') {
-      this.humanTurn(next_player);
-    } else {
-      this.botPlay(next_player);
-    }
+    this.processPlay();
   }
 
-  humanTurn(player) {
-    player.cards.forEach( (card) => {
-      if (!card.event_is_set) {
-        card.canvas.addEventListener('click', ()=>{
-          this.humanPlay(player, card);
-          player.removeCard(card);
+  humanTurn() {
+    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
+
+    this._current_player.cards.forEach( (card) => {
+      card.canvas.addEventListener('click', () => {
+        console.log('played card num: ' + card.num + ', color: ' + card.color_n);
+
+        // Remove event listener
+        this._current_player.cards.forEach( (card) => {
+          card.resetEventListener();
         });
-        card.event_is_set = true;
-      }
+
+        this.changeTopCard(card);
+
+        this._current_player.removeCard(card);
+
+        this.processPlay();
+      });
     });
-  }
 
-  async humanPlay(player, card) {
-    console.log('Turn count: ' + this._turn_count + ', current player: ' + player.name);
-
-    this.changeTopCard(card);
-
-    console.log('player: ' + player.name + ' played card num: ' + card.num + ', color: ' + card.color_n);
-    player.refreshCards();
-
-
-    this._turn_count++;
-    this.botPlay( this.getNextPlayer() );
   }
 
   getNextPlayer() {
+    let current_player_id = this._current_player.id;
     if (this._reverse) {
-      if (this._current_player === 0) {
-        this._current_player = this._players.length-1;
+      if (current_player_id === 0) {
+        current_player_id = this._players.length - 1;
       } else {
-        this._current_player--;
+        current_player_id--;
       }
     } else {
-      if (this._current_player === this._players.length-1) {
-        this._current_player = 0;
+      if (current_player_id === this._players.length-1) {
+        current_player_id = 0;
       } else {
-        this._current_player++;
+        current_player_id++;
       }
     }
-    return this._players[this._current_player];
+    return this._players[current_player_id];
   }
 
   changeTopCard(card) {
-    this._used_cards.push(this._top_card);
+    if (this._top_card) {
+      this._used_cards.push(this._top_card);
+    }
     this._top_card = card;
     this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
     this._top_card.refresh();
   }
+
 }

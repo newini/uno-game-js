@@ -41,6 +41,17 @@ export default class BasicCanvas {
     this._ctx.clearRect(0, 0, global.uno_game_w, global.uno_game_h);
   }
 
+  resetEventListener() {
+    // clone canvas and replace w/o event listener
+    const canvas = this._canvas.cloneNode(true);
+    const ctx = canvas.getContext('2d');
+    this._canvas.parentNode.replaceChild(canvas, this._canvas);
+    ctx.drawImage(this._canvas, 0, 0)
+    this._canvas.remove();
+    this._canvas = canvas;
+    this._ctx = ctx;
+  }
+
   move(x, y) {
     this._canvas.style.left = x + 'px';
     this._canvas.style.top = y + 'px';

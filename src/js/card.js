@@ -12,7 +12,6 @@ export default class Card extends BasicCanvas {
 
     this._num = num;
     this._color_n = color_n;
-    this._event_is_set = false;
 
     this._cards_img = new Image();
     this._cards_img.src = cards_img;
@@ -43,13 +42,6 @@ export default class Card extends BasicCanvas {
   }
   set color_n(color_n) {
     this._color_n = color_n;
-  }
-
-  get event_is_set() {
-    return this._event_is_set;
-  }
-  set event_is_set(event_is_set) {
-    this._event_is_set = event_is_set;
   }
 
   isMatch(card) {
