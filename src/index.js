@@ -48,6 +48,8 @@ async function createRoom() {
 
   await( room.initCards() );
 
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
   await( room.dealCards() );
 
   await new Promise(resolve => setTimeout(resolve, 500));

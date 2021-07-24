@@ -81,7 +81,11 @@ export default class Room extends BasicCanvas {
     //  }
   }
 
-  async processPlay() {
+  processCard() {
+
+  }
+
+  async finishTurn() {
     await( this._current_player.refreshCards() );
 
     this._turn_count++;
@@ -107,11 +111,13 @@ export default class Room extends BasicCanvas {
       this._current_player.addCard(card);
     }
 
-    this.processPlay();
+    this.finishTurn();
   }
 
   humanTurn() {
     console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
+
+    this._top_back_card = this._cards[ this._cards.length-1 ];
 
     this._current_player.cards.forEach( (card) => {
       if (this._top_card.isMatch(card)) {
@@ -120,7 +126,8 @@ export default class Room extends BasicCanvas {
         card.canvas.addEventListener('click', () => {
           console.log('played card num: ' + card.num + ', color: ' + card.color_n);
 
-          // Remove all cards' event listener
+          // Remove event listener
+          this._top_back_card.resetEventListener();
           this._current_player.cards.forEach( (card) => {
             card.resetEventListener();
           });
@@ -129,9 +136,25 @@ export default class Room extends BasicCanvas {
 
           this._current_player.removeCard(card);
 
-          this.processPlay();
+          this.finishTurn();
         });
       }
+    });
+
+    // Draw card
+    this._top_back_card.canvas.addEventListener('click', () => {
+      const card = this._cards.pop();
+      console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
+
+      // Remove event listener
+      this._top_back_card.resetEventListener();
+      this._current_player.cards.forEach( (card) => {
+        card.resetEventListener();
+      });
+
+      this._current_player.addCard(card);
+
+      this.finishTurn();
     });
 
   }

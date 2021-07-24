@@ -68,9 +68,12 @@ export default class Card extends BasicCanvas {
     }
   }
 
-  drawImageFront(x, y) {
-    this.move(x, y);
+  async drawImageFront(x, y) {
+    if (x && y) {
+      this.move(x, y);
+    }
     this.clear();
+    this._cards_img.src = await (cards_img);
     this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
         0, 0, this._w, this._h);
   }

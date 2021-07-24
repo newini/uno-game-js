@@ -42,7 +42,7 @@ export default class Player extends BasicCanvas {
     this._cards.push(card);
     this.sortCards();
     if (this.type === 'human') {
-      card.flip();
+      card.drawImageFront();
     }
   }
 
