@@ -56,13 +56,29 @@ export default class Player extends BasicCanvas {
 
   refreshCards() {
     for (let i=0; i<this._cards.length; i++) {
-      this._cards[i].move(global.uno_game_w*(i+1)/16, global.uno_game_h*(5-this.id-1)/5);
+      let x0, y0, dx, dy;
+      if (this._id === 0) {
+        x0 = global.uno_game_w/4;
+        dx = global.uno_game_w/2 / (this._cards.length+1);
+        y0 = global.uno_game_h*4/5;
+        dy = 0;
+        this._cards[i].move(x0 + dx*(i+1), y0 + dy*(i+1));
+      } else {
+        x0 = global.uno_game_w*(this._id-1)/3;
+        dx = global.uno_game_w/3 / (this._cards.length+2);
+        this._cards[i].move(x0 + dx*(i+1), this.ellipticalFormula(x0 + dx*(i+1), global.uno_game_w/2, global.uno_game_h));
+      }
     }
   }
 
   sortCards() {
     this._cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
     this.refreshCards();
+  }
+
+
+  ellipticalFormula(x, a, b) {
+    return b * ( 1 - Math.sqrt( 1 - (x/a - 1)**2 ) );
   }
 
 }

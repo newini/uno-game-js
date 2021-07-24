@@ -59,6 +59,11 @@ export default class BasicCanvas {
     this._canvas.style.top = y + 'px';
   }
 
+  scale(scale) {
+    this._canvas.style.width = this._w * scale + 'px';
+    this._canvas.style.height = this._h * scale + 'px';
+  }
+
   refresh() {
     this._canvas.style.zIndex = global.canvas_count;
     global.canvas_count++;
