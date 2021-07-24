@@ -57,6 +57,7 @@ export default class BasicCanvas {
     this._y = y;
     this._canvas.style.left = x + 'px';
     this._canvas.style.top = y + 'px';
+    this.refresh();
   }
 
   scale(scale) {

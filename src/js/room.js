@@ -63,41 +63,39 @@ export default class Room extends BasicCanvas {
   async startGame() {
     console.log('Game start');
 
+    // Init
     this._turn_count = 0;
+    this._skip = false;
+    this._reverse = false;
+    this._draw2 = false;
+    this._draw4 = false;
+    this._current_player = this._players[0];
 
     await( this.changeTopCard( this._cards.pop() ) );
 
-    await( this._current_player = this._players[0] );
-
-    if (this._current_player.type === 'bot') {
-      this.botPlay();
-    } else {
-      this.humanTurn();
-    }
-
-    //  if (player.isEmpty()) {
-    //    console.log('player: ' + player.name + ' has no card left. Game end');
-    //    break
-    //  }
+    this.initTurn();
   }
 
-  processCard() {
-
-  }
-
-  async finishTurn() {
-    await( this._current_player.refreshCards() );
-
-    this._turn_count++;
-    this._current_player = this.getNextPlayer();
-    if (this._current_player.type === 'human') {
-      this.humanTurn();
+  initTurn() {
+    // check draw cards
+    if (this._draw2) {
+      this._draw2 = false;
+      for (let i=0; i<2; i++) this._current_player.addCard( this._cards.pop() );
+      this.finishTurn();
+    } else if (this._draw4) {
+      this._draw4 = false;
+      for (let i=0; i<4; i++) this._current_player.addCard( this._cards.pop() );
+      this.finishTurn();
     } else {
-      this.botPlay();
+      if (this._current_player.type === 'bot') {
+        this.botTurn();
+      } else {
+        this.humanTurn();
+      }
     }
   }
 
-  async botPlay() {
+  async botTurn() {
     console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -105,6 +103,7 @@ export default class Room extends BasicCanvas {
     if (card) {
       console.log('played card num: ' + card.num + ', color: ' + card.color_n);
       this.changeTopCard(card);
+      this.treatCard(card);
     } else {
       const card = this._cards.pop();
       console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
@@ -118,13 +117,16 @@ export default class Room extends BasicCanvas {
     console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
 
     this._top_back_card = this._cards[ this._cards.length-1 ];
+    this._top_back_card.mouseEffect();
 
+    // Select card event
     this._current_player.cards.forEach( (card) => {
       if (this._top_card.isMatch(card)) {
         card.mouseEffect();
 
         card.canvas.addEventListener('click', () => {
           console.log('played card num: ' + card.num + ', color: ' + card.color_n);
+          this._current_player.removeCard(card);
 
           // Remove event listener
           this._top_back_card.resetEventListener();
@@ -133,15 +135,13 @@ export default class Room extends BasicCanvas {
           });
 
           this.changeTopCard(card);
-
-          this._current_player.removeCard(card);
-
+          this.treatCard(card);
           this.finishTurn();
         });
       }
     });
 
-    // Draw card
+    // Draw card event
     this._top_back_card.canvas.addEventListener('click', () => {
       const card = this._cards.pop();
       console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
@@ -153,28 +153,75 @@ export default class Room extends BasicCanvas {
       });
 
       this._current_player.addCard(card);
-
       this.finishTurn();
     });
 
   }
 
-  getNextPlayer() {
-    let current_player_id = this._current_player.id;
-    if (this._reverse) {
-      if (current_player_id === 0) {
-        current_player_id = this._players.length - 1;
-      } else {
-        current_player_id--;
-      }
+  treatCard(card) {
+    console.log('treat card num:' + card.num)
+    switch (card.num) {
+      case 10: // skip card
+        this._skip = true;
+        break;
+      case 11: // reverse card
+        this._reverse = (this._reverse) ? false : true;
+        break;
+      case 12: // +2 card
+        this._draw2 = true;
+        break;
+      case 13: // change color card
+        card.color_n = 0; // TODO
+        break;
+       case 14: // +4 card
+        this._draw4 = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  async finishTurn() {
+    console.log('finish turn')
+
+    // re-deploy player's cards
+    await( this._current_player.reDeployCards() );
+
+    // Check empty
+    if (this._current_player.isEmpty()) {
+      console.log('player: ' + this._current_player.name + ' has no card left. Game end');
     } else {
-      if (current_player_id === this._players.length-1) {
-        current_player_id = 0;
+      this._turn_count++;
+      await ( this.decideNextPlayer() );
+      this.initTurn();
+    }
+  }
+
+  decideNextPlayer() {
+    console.log('decide next player')
+
+    let current_player_id = this._current_player.id;
+    let loop_cnt = 1;
+    if (this._skip) {
+      this._skip = false;
+      loop_cnt++;
+    }
+    for (let i=0; i<loop_cnt; i++) {
+      if (this._reverse) {
+        if (current_player_id === 0) {
+          current_player_id = this._players.length - 1;
+        } else {
+          current_player_id--;
+        }
       } else {
-        current_player_id++;
+        if (current_player_id === this._players.length-1) {
+          current_player_id = 0;
+        } else {
+          current_player_id++;
+        }
       }
     }
-    return this._players[current_player_id];
+    this._current_player = this._players[current_player_id];
   }
 
   changeTopCard(card) {

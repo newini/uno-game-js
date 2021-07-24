@@ -86,16 +86,10 @@ export default class Card extends BasicCanvas {
 
   mouseEffect() {
     this._canvas.addEventListener('mouseenter', () => {
-      console.log(this._canvas.style.top)
-      console.log(this._y)
-      console.log(this._h/4)
       this._canvas.style.top = this._y - this._h/4 + 'px';
-      console.log(this._canvas.style.top)
     });
     this._canvas.addEventListener('mouseleave', () => {
-      console.log(this._canvas.style.top)
       this._canvas.style.top = this._y + 'px';
-      console.log(this._canvas.style.top)
     });
   }
 
