@@ -29,7 +29,7 @@ export default class Room extends BasicCanvas {
   }
 
   initCards() {
-    console.log('Init')
+    console.log('Initialize cards')
     const index_arr = [...Array(108).keys()];
     for (let num=0; num<14; num++) {
       for (let color_n=0; color_n<8; color_n++) {
@@ -103,7 +103,6 @@ export default class Room extends BasicCanvas {
     if (card) {
       console.log('played card num: ' + card.num + ', color: ' + card.color_n);
       this.changeTopCard(card);
-      this.treatCard(card);
     } else {
       const card = this._cards.pop();
       console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
@@ -134,9 +133,27 @@ export default class Room extends BasicCanvas {
             card.resetEventListener();
           });
 
-          this.changeTopCard(card);
-          this.treatCard(card);
-          this.finishTurn();
+          // Show color change blocks
+          if (card.num === 13 || card.num === 14) {
+            const bc_colors = [];
+            for (let i=0; i<4; i++) {
+              const w = global.uno_game_w;
+              const bc = new BasicCanvas(w/2+w*i/16, global.uno_game_h*3/4, w/16, w/16);
+              bc.fillColor(i);
+              bc.canvas.addEventListener('click', () => {
+                bc_colors.forEach( bc_color => bc_color.remove() );
+                // Change card color
+                card.color_n = i;
+                // Process
+                this.changeTopCard(card);
+                this.finishTurn();
+              });
+              bc_colors.push(bc);
+            }
+          } else {
+            this.changeTopCard(card);
+            this.finishTurn();
+          }
         });
       }
     });
@@ -155,30 +172,6 @@ export default class Room extends BasicCanvas {
       this._current_player.addCard(card);
       this.finishTurn();
     });
-
-  }
-
-  treatCard(card) {
-    console.log('treat card num:' + card.num)
-    switch (card.num) {
-      case 10: // skip card
-        this._skip = true;
-        break;
-      case 11: // reverse card
-        this._reverse = (this._reverse) ? false : true;
-        break;
-      case 12: // +2 card
-        this._draw2 = true;
-        break;
-      case 13: // change color card
-        card.color_n = 0; // TODO
-        break;
-       case 14: // +4 card
-        this._draw4 = true;
-        break;
-      default:
-        break;
-    }
   }
 
   async finishTurn() {
@@ -225,12 +218,43 @@ export default class Room extends BasicCanvas {
   }
 
   changeTopCard(card) {
-    if (this._top_card) {
-      this._used_cards.push(this._top_card);
-    }
+    if (this._top_card) this._used_cards.push(this._top_card);
     this._top_card = card;
     this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
     this._top_card.refresh();
+    this.treatCard();
   }
+
+  async treatCard() {
+    console.log('treat card num:' + this._top_card.num)
+    switch (this._top_card.num) {
+      case 10: // skip card
+        this._skip = true;
+        break;
+      case 11: // reverse card
+        this._reverse = (this._reverse) ? false : true;
+        break;
+      case 12: // +2 card
+        this._draw2 = true;
+        break;
+      case 13: // change color card
+        await ( this.changeColor() );
+        break;
+       case 14: // +4 color change card
+        this._draw4 = true;
+        await ( this.changeColor() );
+        break;
+      default:
+        break;
+    }
+  }
+
+  changeColor() {
+    if (this._current_player.type === 'bot') {
+      this._top_card.color_n = this._current_player.changeColor();
+      console.log('change color' + this._top_card.color_n);
+    }
+  }
+
 
 }

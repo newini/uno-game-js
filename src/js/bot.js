@@ -6,6 +6,10 @@ export default class Bot extends Player {
     this._type = 'bot';
   }
 
+  changeColor() {
+    return Math.floor( Math.random() * 4 );
+  }
+
   playCard(top_card) {
     for (let i=0; i<this._cards.length; i++) {
       const card = this._cards[i];

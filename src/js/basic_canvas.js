@@ -41,6 +41,13 @@ export default class BasicCanvas {
     this._ctx.clearRect(0, 0, global.uno_game_w, global.uno_game_h);
   }
 
+  fillColor(i) {
+    const colors = { 0: 'red', 1: 'yellow', 2: 'green', 3: 'blue' };
+    this._ctx.fillStyle = colors[i];
+    this._ctx.rect(0, 0, this._w, this._h);
+    this._ctx.fill();
+  }
+
   resetEventListener() {
     // clone canvas and replace w/o event listener
     const canvas = this._canvas.cloneNode(true);
@@ -71,7 +78,10 @@ export default class BasicCanvas {
   }
 
   remove() {
+    console.log('remove canvas')
+    this._canvas.parentNode.removeChild( this._canvas );
     this._canvas.remove();
+    //delete this._canvas;
   }
 
 }

@@ -45,43 +45,35 @@ export default class Card extends BasicCanvas {
   }
 
   isMatch(card) {
-    if ( (this._num <= 12 && this._num === card.num)
-      || (this._num >= 13)
-      || (this._color_n === card.color_n) ) {
+    if ( (card.num <= 12 && this._num === card.num) // Normal card
+      || (card.num >= 13) // Change color card
+      || (card.color_n === this._color_n) ) { // Color match
       return true;
     } else {
       return false;
     }
   }
 
-  flip() {
-    this.clear();
-    if (this._is_front) {
-      this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
-      this._is_front = false;
-    } else {
-      this._cards_img.addEventListener('load', () => {
-        this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
-            0, 0, this._w, this._h);
-        this._is_front = true;
-      });
-    }
-  }
-
   async drawImageFront(x, y) {
-    if (x && y) {
-      this.move(x, y);
-    }
+    if (x && y) this.move(x, y);
     this.clear();
     this._cards_img.src = await (cards_img);
-    this._ctx.drawImage(this._cards_img, 1+this._c_w*this._num, 1+this._c_h*this._color_n, this._c_w, this._c_h,
+    // Treat +4 card
+    let num = this._num, color_n = this._color_n;
+    if (num === 14) {
+      num = 13;
+      color_n += 4;
+    }
+    this._ctx.drawImage(this._cards_img, 1+this._c_w*num, 1+this._c_h*color_n, this._c_w, this._c_h,
         0, 0, this._w, this._h);
+    this._is_front = true;
   }
 
   drawImageBack(x, y) {
-    this.move(x, y);
+    if (x && y) this.move(x, y);
     this.clear();
     this._ctx.drawImage(this._card_back_img, 0, 0, this._w, this._h);
+    this._is_front = false;
   }
 
   mouseEffect() {
