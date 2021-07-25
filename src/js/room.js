@@ -114,7 +114,7 @@ export default class Room extends BasicCanvas {
   async botTurn() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const card = await( this._current_player.playCard(this._top_card) );
+    const card = await( this._current_player.playCard(this._top_discard_pile) );
     if (card) {
       console.log('played card num: ' + card.num + ', color: ' + card.color_n);
       this.changeTopCard(card);
@@ -128,12 +128,12 @@ export default class Room extends BasicCanvas {
   }
 
   humanTurn() {
-    this._top_back_card = this._cards[ this._cards.length-1 ];
-    this._top_back_card.mouseEffect();
+    this._top_draw_card = this._cards[ this._cards.length-1 ];
+    this._top_draw_card.mouseEffect();
 
     // Select card event
     this._current_player.cards.forEach( (card) => {
-      if (this._top_card.isMatch(card)) {
+      if (this._top_discard_pile.isMatch(card)) {
         card.mouseEffect();
 
         card.canvas.addEventListener('click', () => {
@@ -141,7 +141,7 @@ export default class Room extends BasicCanvas {
           this._current_player.removeCard(card);
 
           // Remove event listener
-          this._top_back_card.resetEventListener();
+          this._top_draw_card.resetEventListener();
           this._current_player.cards.forEach( (card) => {
             card.resetEventListener();
           });
@@ -172,12 +172,12 @@ export default class Room extends BasicCanvas {
     });
 
     // Draw card event
-    this._top_back_card.canvas.addEventListener('click', () => {
+    this._top_draw_card.canvas.addEventListener('click', () => {
       const card = this._cards.pop();
       console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
 
       // Remove event listener
-      this._top_back_card.resetEventListener();
+      this._top_draw_card.resetEventListener();
       this._current_player.cards.forEach( (card) => {
         card.resetEventListener();
       });
@@ -231,16 +231,16 @@ export default class Room extends BasicCanvas {
   }
 
   changeTopCard(card) {
-    if (this._top_card) this._used_cards.push(this._top_card);
-    this._top_card = card;
-    this._top_card.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
-    this._top_card.refresh();
+    if (this._top_discard_pile) this._used_cards.push(this._top_discard_pile);
+    this._top_discard_pile = card;
+    this._top_discard_pile.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
+    this._top_discard_pile.refresh();
     this.treatCard();
   }
 
   async treatCard() {
-    console.log('treat card num:' + this._top_card.num)
-    switch (this._top_card.num) {
+    console.log('treat card num:' + this._top_discard_pile.num)
+    switch (this._top_discard_pile.num) {
       case 10: // skip card
         this._skip = true;
         break;
@@ -264,8 +264,8 @@ export default class Room extends BasicCanvas {
 
   changeColor() {
     if (this._current_player.type === 'bot') {
-      this._top_card.color_n = this._current_player.changeColor();
-      console.log('change color' + this._top_card.color_n);
+      this._top_discard_pile.color_n = this._current_player.changeColor();
+      console.log('change color' + this._top_discard_pile.color_n);
     }
   }
 
