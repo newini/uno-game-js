@@ -71,9 +71,22 @@ export default class Room extends BasicCanvas {
     this._draw4 = false;
     this._current_player = this._players[0];
 
-    await( this.changeTopCard( this._cards.pop() ) );
+    await( this.initDiscardPile() );
 
     this.initTurn();
+  }
+
+  // Not allow special card to be first discard pile
+  initDiscardPile() {
+    while (true) {
+      const card = this._cards.pop();
+      if (card.num <= 9) {
+        this.changeTopCard( card );
+        break;
+      } else {
+        this._cards.splice( Math.floor(Math.random()*this._cards.length), 0, card);
+      }
+    }
   }
 
   async initTurn() {
