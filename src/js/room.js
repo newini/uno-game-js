@@ -76,7 +76,10 @@ export default class Room extends BasicCanvas {
     this.initTurn();
   }
 
-  initTurn() {
+  async initTurn() {
+    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // check draw cards
     if (this._draw2) {
       this._draw2 = false;
@@ -96,8 +99,7 @@ export default class Room extends BasicCanvas {
   }
 
   async botTurn() {
-    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     const card = await( this._current_player.playCard(this._top_card) );
     if (card) {
@@ -113,8 +115,6 @@ export default class Room extends BasicCanvas {
   }
 
   humanTurn() {
-    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
-
     this._top_back_card = this._cards[ this._cards.length-1 ];
     this._top_back_card.mouseEffect();
 
