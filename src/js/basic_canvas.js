@@ -78,7 +78,6 @@ export default class BasicCanvas {
   }
 
   remove() {
-    console.log('remove canvas')
     this._canvas.parentNode.removeChild( this._canvas );
     this._canvas.remove();
     //delete this._canvas;

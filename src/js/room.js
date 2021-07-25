@@ -47,7 +47,6 @@ export default class Room extends BasicCanvas {
     for (let i=0; i<this._cards.length; i++) {
       this._cards[i].refresh();
     }
-    console.log(this._cards);
   }
 
   dealCards() {
@@ -57,7 +56,6 @@ export default class Room extends BasicCanvas {
         player.addCard( this._cards.pop() );
       }
     });
-    console.log(this._players);
   }
 
   async startGame() {
@@ -204,8 +202,6 @@ export default class Room extends BasicCanvas {
   }
 
   decideNextPlayer() {
-    console.log('decide next player')
-
     let current_player_id = this._current_player.id;
     let loop_cnt = 1;
     if (this._skip) {
@@ -214,17 +210,11 @@ export default class Room extends BasicCanvas {
     }
     for (let i=0; i<loop_cnt; i++) {
       if (this._reverse) {
-        if (current_player_id === 0) {
-          current_player_id = this._players.length - 1;
-        } else {
-          current_player_id--;
-        }
+        if (current_player_id === 0) current_player_id = this._players.length - 1;
+        else current_player_id--;
       } else {
-        if (current_player_id === this._players.length-1) {
-          current_player_id = 0;
-        } else {
-          current_player_id++;
-        }
+        if (current_player_id === this._players.length-1) current_player_id = 0;
+        else current_player_id++;
       }
     }
     this._current_player = this._players[current_player_id];
@@ -239,23 +229,28 @@ export default class Room extends BasicCanvas {
   }
 
   async treatCard() {
-    console.log('treat card num:' + this._top_discard_pile.num)
     switch (this._top_discard_pile.num) {
       case 10: // skip card
         this._skip = true;
+        console.log('skip');
         break;
       case 11: // reverse card
         this._reverse = (this._reverse) ? false : true;
+        console.log('reverse');
         break;
-      case 12: // +2 card
+      case 12: // draw 2 card
         this._draw2 = true;
+        console.log('next player draw 2 cards');
         break;
-      case 13: // change color card
+      case 13: // wild card (change color)
         await ( this.changeColor() );
+        console.log('change color: ' + this._top_discard_pile.color_n);
         break;
-       case 14: // +4 color change card
+       case 14: // wild draw 4 card (change color)
         this._draw4 = true;
         await ( this.changeColor() );
+        console.log('next player draw 4 cards');
+        console.log('change color: ' + this._top_discard_pile.color_n);
         break;
       default:
         break;
@@ -263,10 +258,7 @@ export default class Room extends BasicCanvas {
   }
 
   changeColor() {
-    if (this._current_player.type === 'bot') {
-      this._top_discard_pile.color_n = this._current_player.changeColor();
-      console.log('change color' + this._top_discard_pile.color_n);
-    }
+    if (this._current_player.type === 'bot') this._top_discard_pile.color_n = this._current_player.changeColor();
   }
 
 
