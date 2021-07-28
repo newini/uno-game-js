@@ -4,17 +4,17 @@
   margin: 0;
 }
 
+/* Common */
 .uno-game-canv-default {
   position: absolute;
   display: block;
 }
 
+/* Main view */
 .uno-game-canv-bkg {
   background-image: url('../images/green_table.jpg');
 }
-
-// Title
-.uno-game-typewriter {
+.uno-game-title {
   position: absolute;
   left: 0;
   right: 0;
@@ -32,15 +32,32 @@
     typing 3.5s steps(20, end),
     blink-caret .75s step-end infinite;
 }
-
 /* The typing effect */
 @keyframes typing {
   from { width: 0 }
   to { width: 100% }
 }
-
 /* The typewriter cursor effect */
 @keyframes blink-caret {
   from, to { border-color: transparent }
   50% { border-color: orange; }
 }
+.uno-game-btn-div {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.uno-game-btn {
+  padding: 15px 32px;
+  margin: auto;
+
+  background-color: Transparent;
+  border: none;
+  color: white;
+  cursor: pointer; /* Pointer/hand icon */
+  display: block; /* Make the buttons appear below each other */
+}
+.uno-game-btn:hover {
+  background-color: olive;
+}
+
