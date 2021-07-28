@@ -56,3 +56,7 @@ This command will generate `dist/main.js`
 
 ## TODO
 - multiplay
+
+
+## Reference
+- [Creating the UNO game on JavaScript. (Part I)](https://eperezcosano.github.io/uno-part1/)
