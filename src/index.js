@@ -5,6 +5,8 @@ import BasicCanvas from './js/basic_canvas.js';
 import Room from './js/room.js';
 /* SCSS */
 import './styles/uno-game.scss';
+/* Image */
+import green_table from './images/green_table.jpg';
 
 // Global variables
 global.canvas_count = 0; // increment number to avoid the same canvas id
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Create background canv
   const bkg = new BasicCanvas(0, 0, global.uno_game_w, global.uno_game_h);
-  bkg.canvas.classList.add('uno-game-canv-bkg');
+  bkg.canvas.style.backgroundImage = 'url(' + green_table +')';
 
   // Create UNO title
   const title = document.createElement('h1');
