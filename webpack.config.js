@@ -9,7 +9,7 @@ module.exports = {
   mode: "development", // "production" | "development" | "none"
   entry: "./src/index.js", // string | object | array
   output: {
-    path: path.resolve(__dirname, "js"), // string (default)
+    path: path.resolve(__dirname, "."), // string (default)
     filename: "uno_game.js", // string (default)
     //publicPath: "/assets/", // string
     uniqueName: "uno-game", // (defaults to package.json "name")
@@ -21,25 +21,19 @@ module.exports = {
         test: /\.scss$/i,
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
+
+      // Use url-loader to tranform images into base64 URIs
       {
         //test: /\.(png|svg|jpe?g|gif)$/i,
         test: /\.(png|jpe?g|gif)$/i,
-        //type: 'asset/resource',
         use: [
           {
             loader: 'url-loader',
           },
         ],
-        //use: [
-        //  {
-        //    loader: 'file-loader',
-        //    options: {
-        //      name: '[name].[ext]',
-        //      outputPath : 'images/',
-        //    }
-        //  },
-        //],
       },
+
+      // Use mini-svg-data-uri to compress
       {
         test: /\.svg$/i,
         use: [
