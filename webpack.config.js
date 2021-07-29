@@ -1,5 +1,10 @@
 var path = require('path');
 
+/* mini-svg-data-uri */
+// converts SVGs into the most compact, compressible data: URI that SVG-supporting browsers tolerate
+// https://github.com/tigt/mini-svg-data-uri
+var svgToMiniDataURI = require('mini-svg-data-uri');
+
 module.exports = {
   mode: "development", // "production" | "development" | "none"
   entry: "./src/index.js", // string | object | array
@@ -17,7 +22,8 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
-        test: /\.(png|svg|jpe?g|gif)$/i,
+        //test: /\.(png|svg|jpe?g|gif)$/i,
+        test: /\.(png|jpe?g|gif)$/i,
         //type: 'asset/resource',
         use: [
           {
@@ -33,6 +39,17 @@ module.exports = {
         //    }
         //  },
         //],
+      },
+      {
+        test: /\.svg$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              generator: (content) => svgToMiniDataURI(content.toString()),
+            },
+          },
+        ],
       },
     ],
   },
