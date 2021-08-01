@@ -1,110 +1,135 @@
-import BasicCanvas from './basic_canvas.js';
-import Human from './human.js';
-import Bot from './bot.js';
-import Card from './card.js';
-/* Images */
+import Rule from './rule.js';
 
-export default class Room extends BasicCanvas {
+export default class Room {
   constructor(name) {
-    super(0, 0, global.uno_game_w, global.uno_game_h/10);
+    this._rule = new Rule();
 
     this._name = name;
     this._players = [];
-    this._cards = [];
-    this._used_cards = [];
+    this._remain_cards = [];
+    this._discard_piles = [];
+    this._discard_pile_top = {};
+    this._current_player = {};
+    this._game_status = 'ready';
+  }
 
-    // Fill room name
-    this._ctx.font = Math.floor(this._h/3) + "px Arial";
-    this._ctx.fillText(name, 10, 50);
+  receive(data) {
+    if (data.ctrl === 'addHuman') this.addHuman(data.name);
+    else if (data.ctrl === 'addBot') this.addBot();
+    else if (data.ctrl === 'startGame') this.startGame();
+    else if (data.ctrl === 'playCard') this.playCard(data.card);
+    else if (data.ctrl === 'changeColor') this.changeColor(data.color_n);
+    else if (data.ctrl === 'drawCard') this.drawCard();
   }
 
   addHuman(name) {
-    this._players.push( new Human(name, this._players.length) );
+    this._players.push( {type: 'human', name: name, id: this._players.length } );
     console.log(this._players);
   }
 
   addBot() {
-    this._players.push( new Bot('bot', this._players.length) );
+    this._players.push( {type: 'bot', name: 'bot'+this._players.length, id: this._players.length} );
     console.log(this._players);
   }
 
-  initCards() {
-    console.log('Initialize cards')
-    const index_arr = [...Array(108).keys()];
-    for (let num=0; num<14; num++) {
-      for (let color_n=0; color_n<8; color_n++) {
-        if ( (num === 0) && (color_n >= 4) ) { // Skip blank card
-          continue;
-        }
-        if ( (num === 13) && (color_n >= 4) ) { // +4 cards
-          num = 14;
-        }
-        const card_index = index_arr.splice(Math.floor( Math.random() * index_arr.length), 1)[0];
-        this._cards[ card_index ] = new Card(global.uno_game_w*6/16+card_index, global.uno_game_h/2, num, color_n%4);
-      }
-    }
-    // re-order z-index
-    for (let i=0; i<this._cards.length; i++) {
-      this._cards[i].refresh();
-    }
-  }
-
-  dealCards() {
-    console.log('Deal cards')
-    this._players.forEach( (player) => {
-      for (let i=0; i<7; i++) {
-        player.addCard( this._cards.pop() );
-      }
-    });
+  respondData() {
+    return JSON.stringify( {
+      room: {
+        name: this._name
+      },
+      players: this._players,
+      remain_cards: this._remain_cards,
+      discard_piles: this._discard_piles,
+      discard_pile_top: this._discard_pile_top,
+      current_player: this._current_player,
+      game_status: this._game_status
+    } );
   }
 
   async startGame() {
-    console.log('Game start');
+    console.log('[Room] Game start');
 
     // Init
-    this._turn_count = 0;
+    this._game_status = 'init';
     this._skip = false;
     this._reverse = false;
     this._draw2 = false;
     this._draw4 = false;
-    this._current_player = this._players[0];
+    this._wild = false;
+    this._turn_count = 0,
 
-    await( this.initDiscardPile() );
+    await ( this.initCards() );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await ( this.dealCards() );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await ( this.initDiscardPile() );
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    this._current_player = this._players[0];
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this._game_status = 'start';
 
     this.initTurn();
+  }
+
+  initCards() {
+    console.log('[Room] Initialize cards')
+
+    const index_arr = [...Array(108).keys()]; // Create index pool
+    for (let x=0; x<14; x++) {
+      let num = x;
+      for (let y=0; y<8; y++) {
+        const color_n = y%4;
+        if ( (x === 0) && (y >= 4) ) continue; // Skip blank card
+        if ( (x === 13) && (y >= 4) ) num = 14; // +4 cards
+        // Get random index
+        const card_index = index_arr.splice(Math.floor( Math.random() * index_arr.length), 1)[0];
+        this._remain_cards[ card_index ] = {num: num, color_n: color_n, x: x, y: y};
+      }
+    }
+  }
+
+  dealCards(n_deal_cards=7) {
+    console.log('[Room] Deal cards')
+    this._players.forEach( (player) => {
+      player.cards = [];
+      for (let i=0; i<n_deal_cards; i++) player.cards.push( this._remain_cards.pop() );
+      player.cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
+    });
   }
 
   // Not allow special card to be first discard pile
   initDiscardPile() {
     while (true) {
-      const card = this._cards.pop();
+      const card = this._remain_cards.pop();
       if (card.num <= 9) {
         this.changeTopCard( card );
         break;
       } else {
-        this._cards.splice( Math.floor(Math.random()*this._cards.length), 0, card);
+        // push back to a random position
+        this._remain_cards.splice( Math.floor(Math.random()*this._remain_cards.length), 0, card);
       }
     }
   }
 
   async initTurn() {
-    console.log('Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
+    console.log('[Room] Turn count: ' + this._turn_count + ', current player: ' + this._current_player.name);
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // check draw cards
     if (this._draw2) {
       this._draw2 = false;
-      for (let i=0; i<2; i++) this._current_player.addCard( this._cards.pop() );
+      for (let i=0; i<2; i++) this._current_player.cards.push( this._remain_cards.pop() );
+      this._current_player.cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
       this.finishTurn();
     } else if (this._draw4) {
       this._draw4 = false;
-      for (let i=0; i<4; i++) this._current_player.addCard( this._cards.pop() );
+      for (let i=0; i<4; i++) this._current_player.cards.push( this._remain_cards.pop() );
+      this._current_player.cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
       this.finishTurn();
     } else {
       if (this._current_player.type === 'bot') {
         this.botTurn();
-      } else {
-        this.humanTurn();
       }
     }
   }
@@ -112,88 +137,61 @@ export default class Room extends BasicCanvas {
   async botTurn() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const card = await( this._current_player.playCard(this._top_discard_pile) );
-    if (card) {
-      console.log('played card num: ' + card.num + ', color: ' + card.color_n);
-      this.changeTopCard(card);
-    } else {
-      const card = this._cards.pop();
-      console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
-      this._current_player.addCard(card);
-    }
+    const card = await ( this.botChooseCard() );
 
+    if (card) {
+      this.playCard(card);
+    } else {
+      this.drawCard();
+    }
+  }
+
+  botChooseCard() {
+    for (let i=0; i<this._current_player.cards.length; i++) {
+      const card = this._current_player.cards[i];
+      if ( this._rule.checkCardsMatch(this._discard_pile_top, card) ) {
+        if (card.num >= 13) { // Change color
+          this.changeColor( Math.floor( Math.random() * 4 ) );
+        }
+        return card;
+      }
+    }
+    return null;
+  }
+
+  playCard(card) {
+    console.log('[Room] played card num: ' + card.num + ', color: ' + card.color_n);
+    const player = this._current_player;
+    // Remove card from player cards
+    player.cards.splice(player.cards.findIndex(c => (c.x === card.x && c.y === card.y)), 1);
+
+    this.changeTopCard(card);
     this.finishTurn();
   }
 
-  humanTurn() {
-    this._top_draw_card = this._cards[ this._cards.length-1 ];
-    this._top_draw_card.mouseEffect();
+  changeColor(color_n) {
+    this._wild = true;
+    this._wild_color_n = color_n;
+  }
 
-    // Select card event
-    this._current_player.cards.forEach( (card) => {
-      if (this._top_discard_pile.isMatch(card)) {
-        card.mouseEffect();
+  drawCard() {
+    const card = this._remain_cards.pop();
+    console.log('[Room] drawed card num: ' + card.num + ', color: ' + card.color_n);
 
-        card.canvas.addEventListener('click', () => {
-          console.log('played card num: ' + card.num + ', color: ' + card.color_n);
-          this._current_player.removeCard(card);
-
-          // Remove event listener
-          this._top_draw_card.resetEventListener();
-          this._current_player.cards.forEach( (card) => {
-            card.resetEventListener();
-          });
-
-          // Show color change blocks
-          if (card.num === 13 || card.num === 14) {
-            const bc_colors = [];
-            for (let i=0; i<4; i++) {
-              const w = global.uno_game_w;
-              const bc = new BasicCanvas(w/2+w*i/16, global.uno_game_h*3/4, w/16, w/16);
-              bc.fillColor(i);
-              bc.canvas.addEventListener('click', () => {
-                bc_colors.forEach( bc_color => bc_color.remove() );
-                // Change card color
-                card.color_n = i;
-                // Process
-                this.changeTopCard(card);
-                this.finishTurn();
-              });
-              bc_colors.push(bc);
-            }
-          } else {
-            this.changeTopCard(card);
-            this.finishTurn();
-          }
-        });
-      }
-    });
-
-    // Draw card event
-    this._top_draw_card.canvas.addEventListener('click', () => {
-      const card = this._cards.pop();
-      console.log('drawed card num: ' + card.num + ', color: ' + card.color_n);
-
-      // Remove event listener
-      this._top_draw_card.resetEventListener();
-      this._current_player.cards.forEach( (card) => {
-        card.resetEventListener();
-      });
-
-      this._current_player.addCard(card);
-      this.finishTurn();
-    });
+    this._current_player.cards.push(card);
+    this._current_player.cards.sort( (a, b) => (a.num > b.num) ? 1 : -1 );
+    this.finishTurn();
   }
 
   async finishTurn() {
-    console.log('finish turn')
+    console.log('[Room] finish turn')
 
-    // re-deploy player's cards
-    await( this._current_player.reDeployCards() );
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Check empty
-    if (this._current_player.isEmpty()) {
-      console.log('player: ' + this._current_player.name + ' has no card left. Game end');
+    if (this._current_player.cards.length === 0) {
+      console.log('[Room] player: ' + this._current_player.name + ' has no card left. Game end');
+      this._game_status = 'finish';
     } else {
       this._turn_count++;
       await ( this.decideNextPlayer() );
@@ -221,15 +219,18 @@ export default class Room extends BasicCanvas {
   }
 
   changeTopCard(card) {
-    if (this._top_discard_pile) this._used_cards.push(this._top_discard_pile);
-    this._top_discard_pile = card;
-    this._top_discard_pile.drawImageFront(global.uno_game_w*8/16+this._turn_count, global.uno_game_h/2);
-    this._top_discard_pile.refresh();
+    console.log('[Room] change top card num: ' + card.num + ', color_n: ' + card.color_n)
+    if (this._discard_pile_top.x) this._discard_piles.push(this._discard_pile_top);
+    this._discard_pile_top = card;
+    if (this._wild) {
+      this._wild = false;
+      this._discard_pile_top.color_n = this._wild_color_n;
+    }
     this.treatCard();
   }
 
   async treatCard() {
-    switch (this._top_discard_pile.num) {
+    switch (this._discard_pile_top.num) {
       case 10: // skip card
         this._skip = true;
         console.log('skip');
@@ -243,23 +244,16 @@ export default class Room extends BasicCanvas {
         console.log('next player draw 2 cards');
         break;
       case 13: // wild card (change color)
-        await ( this.changeColor() );
-        console.log('change color: ' + this._top_discard_pile.color_n);
+        console.log('change color: ' + this._discard_pile_top.color_n);
         break;
        case 14: // wild draw 4 card (change color)
         this._draw4 = true;
-        await ( this.changeColor() );
         console.log('next player draw 4 cards');
-        console.log('change color: ' + this._top_discard_pile.color_n);
+        console.log('change color: ' + this._discard_pile_top.color_n);
         break;
       default:
         break;
     }
   }
-
-  changeColor() {
-    if (this._current_player.type === 'bot') this._top_discard_pile.color_n = this._current_player.changeColor();
-  }
-
 
 }

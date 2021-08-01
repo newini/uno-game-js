@@ -31,17 +31,26 @@ export default class Card extends BasicCanvas {
     });
   }
 
+  set num(num) {
+    this._num = num;
+  }
   get num() {
     return this._num;
   }
-  set num(num) {
-    this._num = num;
+
+  set color_n(color_n) {
+    this._color_n = color_n;
   }
   get color_n() {
     return this._color_n;
   }
-  set color_n(color_n) {
-    this._color_n = color_n;
+
+  set data(data) {
+    this._num = data.num;
+    this._color_n = data.color_n;
+  }
+  get data() {
+    return {num: this._num, color_n: this._color_n};
   }
 
   isMatch(card) {
