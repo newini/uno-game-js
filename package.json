@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ws_server.js"
   },
   "repository": {
     "type": "git",
@@ -32,10 +33,14 @@
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2"
   },
+  // For WebSocket server
   "dependencies": {
     "bufferutil": "^4.0.3",
     "express": "^4.17.1",
     "utf-8-validate": "^5.0.5",
     "ws": "^8.0.0"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }

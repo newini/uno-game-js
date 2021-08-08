@@ -1,1 +1,1 @@
-web: node ws_server.js
+web: npm start
