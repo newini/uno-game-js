@@ -46,9 +46,10 @@ wss.on('connection', (ws) => {
 setInterval( () => {
   var data = {
     ctrl: 'idle',
-    time: new Date().toTimeString()
+    date: new Date()
   }
   wss.clients.forEach( (client) => {
-    client.send( data );
+    // Send the msg object as a JSON-formatted string.
+    client.send( JSON.stringify( data ) );
   });
 }, 30000); // 30 s
