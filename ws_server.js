@@ -27,7 +27,7 @@ wss.on('connection', (ws) => {
   // Brige data to all clients
   ws.onmessage = function(evt) {
     console.log(evt.data);
-    wss.clients.forEach((client) => {
+    wss.clients.forEach( (client) => {
       client.send(evt.data);
     });
   }
@@ -40,9 +40,15 @@ wss.on('connection', (ws) => {
 });
 
 
-// Broadcast updates
-//setInterval(() => {
-//  wss.clients.forEach((client) => {
-//    client.send(new Date().toTimeString());
-//  });
-//}, 1000);
+// Send message every 30 s
+// Because Heroku terminate connection in 55 s inactivity
+// https://devcenter.heroku.com/articles/error-codes#h15-idle-connection
+setInterval( () => {
+  var data = {
+    ctrl: 'idle',
+    time: new Date().toTimeString()
+  }
+  wss.clients.forEach( (client) => {
+    client.send( data );
+  });
+}, 30000); // 30 s
